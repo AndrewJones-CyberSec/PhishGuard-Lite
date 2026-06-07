@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PhishGuard Lite</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="popup-shell">
+      <header class="topbar">
+        <div>
+          <h1>PhishGuard Lite</h1>
+          <p id="statusText">Scanning current tab</p>
+        </div>
+        <div id="scoreBadge" class="score-badge low" aria-label="Risk score">--</div>
+      </header>
+
+      <section class="risk-panel" aria-live="polite">
+        <div>
+          <span class="eyebrow">Risk</span>
+          <strong id="riskLabel">Unknown</strong>
+          <p id="lastScanned">Not scanned yet</p>
+        </div>
+        <div class="meter" aria-hidden="true">
+          <div id="meterFill"></div>
+        </div>
+      </section>
+
+      <section class="url-panel">
+        <span class="eyebrow">Current page</span>
+        <p id="pageUrl">No tab selected</p>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <h2>Findings</h2>
+          <span id="findingCount">0</span>
+        </div>
+        <ul id="findingList" class="finding-list"></ul>
+      </section>
+
+      <footer>
+        <span>Defensive learning tool. Warnings only.</span>
+        <button id="optionsButton" type="button">Options</button>
+      </footer>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

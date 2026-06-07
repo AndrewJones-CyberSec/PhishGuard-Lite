@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PhishGuard Lite Options</title>
+    <link rel="stylesheet" href="options.css">
+  </head>
+  <body>
+    <main class="page-shell">
+      <header>
+        <div>
+          <p class="eyebrow">Settings</p>
+          <h1>PhishGuard Lite</h1>
+        </div>
+        <button id="resetButton" type="button">Reset Defaults</button>
+      </header>
+
+      <section>
+        <h2>Protected Brands</h2>
+        <p class="hint">One brand per line: Brand name | domain.com | keyword1, keyword2</p>
+        <textarea id="brandTextarea" spellcheck="false" rows="12"></textarea>
+      </section>
+
+      <section>
+        <h2>Risk Thresholds</h2>
+        <div class="threshold-grid">
+          <label>
+            Caution
+            <input id="cautionInput" type="number" min="1" max="99" step="1">
+          </label>
+          <label>
+            Suspicious
+            <input id="suspiciousInput" type="number" min="2" max="99" step="1">
+          </label>
+          <label>
+            Dangerous
+            <input id="dangerousInput" type="number" min="3" max="100" step="1">
+          </label>
+        </div>
+      </section>
+
+      <section class="privacy-note">
+        <h2>Privacy Boundary</h2>
+        <p>These settings only affect local scoring. PhishGuard Lite still does not read typed form values, cookies, tokens, or credentials.</p>
+      </section>
+
+      <footer>
+        <button id="saveButton" type="button">Save Settings</button>
+        <p id="statusMessage" role="status" aria-live="polite"></p>
+      </footer>
+    </main>
+
+    <script src="data/brandList.js"></script>
+    <script src="utils/scoring.js"></script>
+    <script src="utils/settings.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

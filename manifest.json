@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "PhishGuard Lite",
+  "version": "1.0.0",
+  "description": "A defensive learning extension that flags possible phishing indicators without collecting form data.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "PhishGuard Lite"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "utils/formScanner.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
