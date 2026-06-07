@@ -1,48 +1,228 @@
 # PhishGuard Lite
 
-PhishGuard Lite is a defensive cybersecurity learning project: a Manifest V3 Chrome extension that analyzes webpage structure, URLs, domains, forms, and navigation behavior to flag possible phishing indicators.
+PhishGuard Lite is a privacy-preserving Chrome extension that warns users about common phishing indicators while they browse. It analyzes page structure, URLs, domains, forms, and navigation behavior, then shows an explainable risk score in the extension popup.
 
-Version 1 warns only. It does not block pages.
+PhishGuard Lite is a warning tool only. It does not block pages, submit forms, collect credentials, or send browsing data to a server.
 
-## Features
+## What It Detects
 
-- Domain lookalike checks against a small protected brand list.
-- Simple leetspeak normalization such as `0 -> o`, `1 -> l`, and `3 -> e`.
-- Levenshtein distance checks for domains like `paypa1.com` that resemble `paypal.com`.
-- Suspicious URL word detection for terms such as `login`, `verify`, `secure`, `account`, `update`, `billing`, `support`, and `reset`.
-- Form structure inspection for password, email, username, and login-related fields.
-- Warnings when credential-style forms are on HTTP, submit to a different domain, or submit to a raw IP address.
-- Redirect and navigation-chain tracking with Chrome `webNavigation` APIs.
-- 0-100 risk scoring with clear labels:
-  - `0-24`: Low Risk
-  - `25-49`: Caution
-  - `50-74`: Suspicious
-  - `75-100`: Dangerous
-- Popup UI showing the current page URL, score, label, findings, and educational explanations.
-- Badge warnings for elevated risk pages.
-- Options page for editing protected brands and score thresholds.
-- Scan timestamp in the popup so demo results are easier to explain.
-- No-dependency unit tests for the core detection helpers.
-- Local test page with simulated phishing indicators.
+- Lookalike domains that resemble protected brands, such as `paypa1.com` resembling `paypal.com`.
+- Simple leetspeak substitutions, including `0 -> o`, `1 -> l`, and `3 -> e`.
+- Suspicious URL words such as `login`, `verify`, `secure`, `account`, `update`, `billing`, `support`, and `reset`.
+- Login or account-related forms based on field structure.
+- Credential-style forms on HTTP pages.
+- Credential-style forms that submit to another domain.
+- Form actions that submit to a raw IP address.
+- Navigation chains with multiple redirects or suspicious domain changes.
 
-## Privacy Statement
+## Privacy
 
-PhishGuard Lite is designed as a defensive learning tool and does not collect, store, transmit, log, or read usernames, passwords, cookies, tokens, or typed form input values.
+PhishGuard Lite is designed to inspect security signals without reading private user input.
 
-The content script only inspects page structure and metadata, such as:
+It does not collect, store, transmit, log, or read:
 
-- Current page URL and domain.
-- Form action URLs.
-- Form methods.
-- Input field types and attribute names.
-- Whether fields look credential-related.
-- Browser navigation and redirect behavior.
+- Usernames
+- Passwords
+- Cookies
+- Tokens
+- Typed form values
+- Submitted form contents
+- Local storage or session storage secrets
 
-It does not read `input.value`, form submissions, cookies, local storage tokens, session storage tokens, or page secrets.
+The extension only inspects metadata and structure needed for phishing-risk analysis:
 
-Scan results are stored locally with `chrome.storage.local` per tab so the popup can display findings. No data is sent to any server.
+- Current page URL and domain
+- Form action URLs
+- Form methods
+- Input field types and attributes
+- Whether a form appears credential-related
+- Browser navigation and redirect behavior
 
-## Project Structure
+Scan results are stored locally with `chrome.storage.local` so the popup can show the current tab's findings. No scan data is sent to any external service.
+
+## Risk Score
+
+PhishGuard Lite assigns each page a score from `0` to `100`.
+
+| Score | Label |
+| --- | --- |
+| 0-24 | Low Risk |
+| 25-49 | Caution |
+| 50-74 | Suspicious |
+| 75-100 | Dangerous |
+
+The score is based on findings such as lookalike domains, risky forms, HTTP login behavior, raw IP form actions, and redirect patterns. A higher score means the page has more indicators that are commonly associated with phishing.
+
+The score is a heuristic, not a final verdict. A low score does not guarantee a page is safe, and a high score does not prove a page is malicious.
+
+## Installation
+
+PhishGuard Lite is distributed as an unpacked Chrome extension.
+
+### Download From GitHub
+
+1. Open the GitHub repository page.
+2. Click **Code**.
+3. Click **Download ZIP**.
+4. Extract the ZIP file to a folder on your computer.
+
+### Load in Chrome
+
+1. Open Chrome.
+2. Go to `chrome://extensions`.
+3. Turn on **Developer mode**.
+4. Click **Load unpacked**.
+5. Select the extracted PhishGuard Lite folder.
+6. Pin **PhishGuard Lite** from the Chrome extensions menu.
+
+After installation, reload any pages that were already open so Chrome can inject the content script.
+
+## Using PhishGuard Lite
+
+1. Visit a webpage.
+2. Click the PhishGuard Lite icon in the Chrome toolbar.
+3. Review the current page URL, risk score, risk label, and findings.
+4. Read each finding's explanation to understand why the behavior may be risky.
+
+PhishGuard Lite does not block navigation. If a page receives a high score, review the URL carefully, avoid entering sensitive information, and consider leaving the page.
+
+## Popup Results
+
+The popup displays:
+
+- Current page URL
+- Risk score
+- Risk label
+- Last scanned time
+- Number of findings
+- Finding severity
+- Plain-language explanation for each finding
+- Evidence such as matched suspicious words or mismatched form-action domains
+
+The extension badge also changes when risk increases:
+
+- No badge: Low Risk
+- `?`: Caution
+- `!`: Suspicious
+- `!!`: Dangerous
+
+## Options
+
+Open the Options page from either:
+
+- The **Options** button in the popup
+- `chrome://extensions` -> PhishGuard Lite -> **Details** -> **Extension options**
+
+The Options page lets users customize:
+
+- Protected brands used for lookalike-domain detection
+- Risk thresholds for Caution, Suspicious, and Dangerous labels
+
+Brand entries use this format:
+
+```text
+Brand Name | domain.com | keyword1, keyword2
+```
+
+Example:
+
+```text
+Example Bank | examplebank.com | example, bank
+```
+
+Settings are stored locally in Chrome. Reload open tabs after changing settings so pages are rescanned with the updated configuration.
+
+## Safe Local Test Page
+
+The repository includes a safe test page:
+
+```text
+test-pages/fake-login.html
+```
+
+This page intentionally contains phishing indicators for testing:
+
+- Credential-style fields
+- HTTP form action
+- Raw IP form destination
+
+The test page uses a non-submitting button and does not collect credentials. Do not enter real credentials into any test or training page.
+
+To test local `file://` pages:
+
+1. Open `chrome://extensions`.
+2. Open PhishGuard Lite **Details**.
+3. Enable **Allow access to file URLs**.
+4. Open `test-pages/fake-login.html` in Chrome.
+5. Click the PhishGuard Lite icon.
+
+## How Detection Works
+
+### Domain Lookalike Detection
+
+PhishGuard Lite compares the current domain against a protected brand list. It normalizes common leetspeak characters and uses a small string-distance check to identify close matches.
+
+Example:
+
+```text
+paypa1.com -> paypal.com
+```
+
+This helps identify domains that visually or textually resemble trusted brands.
+
+### Form Inspection
+
+The content script scans form structure only. It checks field types and attributes such as `type`, `name`, `id`, `autocomplete`, `aria-label`, and `placeholder`.
+
+It never reads `input.value` or any typed form content.
+
+The background service worker checks whether credential-style forms:
+
+- Appear on HTTP pages
+- Submit over HTTP
+- Submit to another domain
+- Submit to a raw IP address
+
+### Redirect Tracking
+
+PhishGuard Lite uses Chrome `webNavigation` events to keep a short navigation chain for each tab. Multiple redirects or several domain changes can increase the risk score.
+
+### Local Scoring
+
+Findings are assigned severity values and converted into a local `0-100` score. Scores are capped at `100` and mapped to the risk labels shown in the popup.
+
+## Troubleshooting
+
+### The Popup Says No Scan Result Yet
+
+Reload the current page. Chrome may not inject the content script into pages that were already open before the extension was installed.
+
+### The Extension Does Not Work on chrome:// Pages
+
+Chrome does not allow extensions to scan internal pages such as `chrome://extensions`, `chrome://settings`, or the Chrome Web Store.
+
+### The Local Test Page Does Not Show Findings
+
+Enable **Allow access to file URLs** in the extension details page, then reload the local test page.
+
+### Settings Do Not Seem to Apply
+
+Reload the page after saving Options changes. Existing tabs need a fresh scan before the popup reflects updated brands or thresholds.
+
+## For Developers
+
+PhishGuard Lite is built with:
+
+- Manifest V3
+- JavaScript
+- Chrome Extension APIs
+- Service worker background script
+- Content scripts
+- `chrome.storage.local`
+- `chrome.runtime.sendMessage`
+- `chrome.webNavigation`
+
+### Project Structure
 
 ```text
 manifest.json
@@ -65,138 +245,42 @@ package.json
 README.md
 ```
 
-## Install in Chrome
+### Run Tests
 
-1. Open Chrome and go to `chrome://extensions`.
-2. Enable **Developer mode**.
-3. Click **Load unpacked**.
-4. Select this project folder.
-5. Pin **PhishGuard Lite** from the extensions menu.
-6. To test `file://` pages, open the extension details page and enable **Allow access to file URLs**.
-
-## Options Page
-
-Open the extension details page and click **Extension options**, or click **Options** in the popup.
-
-The options page lets you edit:
-
-- Protected brands used by the lookalike-domain detector.
-- Risk thresholds for Caution, Suspicious, and Dangerous labels.
-
-Settings are stored locally in `chrome.storage.local`. Reload open tabs after changing settings so the content script and background scan refresh the result.
-
-## Testing
-
-### Portfolio demo checklist
-
-Use this checklist for a short, safe demo:
-
-1. Open `https://example.com` and show a Low Risk result.
-2. Open `test-pages/fake-login.html` and show credential-form, HTTP action, and raw-IP findings.
-3. Open the Options page and show the editable protected brand list.
-4. Explain that the scanner stores findings locally and never reads typed form values.
-5. Run `npm test` to show the domain, IP, scoring, and settings helper tests.
-
-### Test the local form scanner
-
-1. Load the extension using the steps above.
-2. Open `test-pages/fake-login.html` in Chrome.
-3. Click the PhishGuard Lite extension icon.
-4. The popup should show warnings for:
-   - A credential-style form.
-   - A form action that uses HTTP.
-   - A form action that submits to a raw IP address.
-
-The test page uses a non-submitting button and does not collect credentials. Do not enter real credentials into any training page.
-
-### Test lookalike domain logic
-
-Visit a safe domain that you control or a local development page with a hostname that resembles a protected brand, such as `paypa1.test`, then inspect the popup. Chrome may require local DNS or hosts-file setup for custom test hostnames.
-
-### Run unit tests
-
-The tests use Node's built-in `assert` module and do not need any packages.
+The test suite uses Node's built-in `assert` module and does not require third-party packages.
 
 ```bash
 npm test
 ```
 
-The test suite checks:
+The tests cover:
 
-- Lookalike domain detection.
-- Avoiding false positives for real protected domains.
-- Suspicious URL word matching.
-- Raw IP address detection.
-- Default and custom risk thresholds.
-- Options-page brand parsing.
-
-## How It Works
-
-### Domain analysis
-
-`utils/domainUtils.js` normalizes domains, applies simple leetspeak replacement, and compares the current domain label against entries in `data/brandList.js`. A small Levenshtein distance can indicate a possible lookalike.
-
-Example:
-
-```text
-paypa1.com -> paypal.com
-```
-
-This does not prove a page is malicious. It is a learning-friendly heuristic that explains why the domain deserves caution.
-
-### Form inspection
-
-`utils/formScanner.js` runs as a content script. It scans forms for structural indicators only, including field types, field names, autocomplete attributes, form methods, and form actions. It never reads typed values.
-
-`background.js` compares form action domains with the current page domain and raises warnings for risky patterns.
-
-### Redirect tracking
-
-`background.js` uses Chrome `webNavigation` events to keep a short navigation chain per tab. Multiple redirects or several domain changes can increase the risk score.
-
-### Risk scoring
-
-`utils/scoring.js` assigns points by finding severity:
-
-- `info`: 5
-- `low`: 10
-- `medium`: 20
-- `high`: 35
-- `critical`: 50
-
-Scores are capped at 100 and mapped to Low Risk, Caution, Suspicious, or Dangerous.
-
-The default thresholds are:
-
-- `0-24`: Low Risk
-- `25-49`: Caution
-- `50-74`: Suspicious
-- `75-100`: Dangerous
-
-The Options page can adjust those thresholds for local demos or experimentation.
+- Lookalike domain detection
+- Avoiding false positives for real protected domains
+- Suspicious URL word matching
+- Raw IP address detection
+- Default and custom risk thresholds
+- Options-page brand parsing
 
 ## Limitations
 
-- This extension uses simple heuristics and can produce false positives or false negatives.
-- It does not use threat intelligence feeds or Google Safe Browsing.
+- PhishGuard Lite uses heuristics and can produce false positives or false negatives.
+- It does not use Google Safe Browsing or live threat intelligence feeds.
 - It does not fully detect Unicode homograph or punycode attacks.
-- Public suffix parsing is intentionally lightweight for beginner readability.
-- Redirect analysis is basic and limited to recent tab navigation events.
-- Browser internal pages such as `chrome://` cannot be scanned by content scripts.
+- Public suffix parsing is intentionally lightweight.
+- Redirect analysis is limited to recent tab navigation events.
+- Browser internal pages cannot be scanned by content scripts.
 
 ## Future Improvements
 
-- Integrate Google Safe Browsing API or another reputable threat intelligence source.
-- Add punycode and Unicode homograph detection.
-- Improve public suffix parsing with a maintained library.
-- Add richer redirect-chain analysis and clearer timeline display.
-- Add an optional warning page while keeping user override controls.
-- Add more automated tests for form analysis and redirect behavior.
-
-## Portfolio and Resume Wording
-
-Built **PhishGuard Lite**, a defensive Manifest V3 Chrome extension that detects phishing indicators using domain similarity checks, form action analysis, redirect tracking, local-only risk scoring, and a privacy-preserving popup UI. The project demonstrates Chrome Extension APIs, JavaScript modular design, secure handling of sensitive browser contexts, and cybersecurity-focused user education.
+- Google Safe Browsing or threat-intelligence integration
+- Punycode and Unicode homograph detection
+- More complete public suffix parsing
+- Richer redirect timeline analysis
+- Optional warning page before visiting high-risk pages
+- More tests for form analysis and redirect behavior
+- User-managed allowlist for trusted domains
 
 ## Safety Boundary
 
-This project is for defensive education only. It does not include credential harvesting, phishing kits, page cloning, form submission interception, or any feature that collects or exfiltrates sensitive user data.
+PhishGuard Lite is defensive software. It does not include credential harvesting, phishing kits, page cloning, form-submission interception, or any feature designed to collect or exfiltrate sensitive user data.
