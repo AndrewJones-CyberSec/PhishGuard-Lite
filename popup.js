@@ -42,6 +42,28 @@ function formatTimestamp(value) {
   })}`;
 }
 
+function createFindingItem({ className, title, severity, explanation }) {
+  const item = document.createElement("li");
+  item.className = `finding ${className}`;
+
+  const titleRow = document.createElement("div");
+  titleRow.className = "finding-title";
+
+  const titleText = document.createElement("span");
+  titleText.textContent = title;
+
+  const severityText = document.createElement("span");
+  severityText.className = "severity";
+  severityText.textContent = severity;
+
+  const explanationText = document.createElement("p");
+  explanationText.textContent = explanation;
+
+  titleRow.append(titleText, severityText);
+  item.append(titleRow, explanationText);
+  return item;
+}
+
 function renderEmpty(tabUrl) {
   statusText.textContent = "No scan result yet";
   scoreBadge.textContent = "--";
@@ -51,34 +73,28 @@ function renderEmpty(tabUrl) {
   meterFill.style.width = "0%";
   pageUrl.textContent = tabUrl || "Open a webpage to scan it.";
   findingCount.textContent = "0";
-  findingList.innerHTML = "";
-
-  const item = document.createElement("li");
-  item.className = "finding low";
-  item.innerHTML = `
-    <div class="finding-title">
-      <span>Waiting for page scan</span>
-      <span class="severity">Info</span>
-    </div>
-    <p>Reload the page if Chrome has not injected the content script yet. Local browser pages such as chrome:// cannot be scanned by extensions.</p>
-  `;
-  findingList.append(item);
+  findingList.replaceChildren(
+    createFindingItem({
+      className: "low",
+      title: "Waiting for page scan",
+      severity: "Info",
+      explanation: "Reload the page if Chrome has not injected the content script yet. Local browser pages such as chrome:// cannot be scanned by extensions."
+    })
+  );
 }
 
 function renderFindings(findings) {
-  findingList.innerHTML = "";
+  findingList.replaceChildren();
 
   if (!findings || findings.length === 0) {
-    const item = document.createElement("li");
-    item.className = "finding low";
-    item.innerHTML = `
-      <div class="finding-title">
-        <span>No phishing indicators found</span>
-        <span class="severity">Info</span>
-      </div>
-      <p>PhishGuard Lite did not see risky form, domain, or redirect patterns on this page. This does not guarantee the page is safe.</p>
-    `;
-    findingList.append(item);
+    findingList.append(
+      createFindingItem({
+        className: "low",
+        title: "No phishing indicators found",
+        severity: "Info",
+        explanation: "PhishGuard Lite did not see risky form, domain, or redirect patterns on this page. This does not guarantee the page is safe."
+      })
+    );
     return;
   }
 

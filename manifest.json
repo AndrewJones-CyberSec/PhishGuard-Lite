@@ -4,9 +4,7 @@
   "version": "1.0.0",
   "description": "A defensive learning extension that flags possible phishing indicators without collecting form data.",
   "permissions": [
-    "activeTab",
     "storage",
-    "tabs",
     "webNavigation"
   ],
   "host_permissions": [
@@ -22,6 +20,9 @@
   "options_ui": {
     "page": "options.html",
     "open_in_tab": true
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
   },
   "content_scripts": [
     {
